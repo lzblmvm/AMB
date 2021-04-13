@@ -1,0 +1,184 @@
+from os import listdir, walk, chdir
+from blend_modes import soft_light, addition
+from cv2 import imread, imwrite, merge, imshow, split, IMWRITE_JPEG_QUALITY, cv2
+import numpy as np
+
+
+class ambTEX(object):
+    """
+        Load images from the given directory and redy them for processing.
+    """
+
+
+
+    def __init__(self, dir, suffix):
+
+        self.dir = dir
+        self.flist = []
+        self.fDic = {}
+        self.suff = suffix
+        self.value = []
+        
+        _, _, self.flist = next(walk(dir))
+
+        for i in self.flist:
+
+            key = self.getKey(i)
+            
+            if key not in self.fDic:
+
+                self.fDic[key] = []         #Inserting new key.
+                self.fDic[key].append(i)    #Adding value for the new key.
+
+            else:
+
+                self.fDic[key].append(i)
+
+    
+
+    def convert(self):
+
+        composifn = self.getRef('_01')
+        setA = [None] * 2
+
+        for i in range(2):
+
+            setA[i] = cv2.imread(composifn[i], -1).astype(float)
+
+        for j in range(len(setA)):
+
+            if not self.hasAlpha(setA[j]):
+                
+                setA[j] = self.addAlpha(setA[j])
+
+
+        img_out = addition(setA[0], setA[1], 1.0)
+        #cv2.imshow('window', img_out.astype(np.uint8))
+
+        return img_out
+
+
+
+    def saveIMG(self, img, dir):
+
+        chdir(dir)
+        cv2.imwrite(dir + '/GF.png', img, [cv2.IMWRITE_JPEG_QUALITY, 100])
+
+
+
+    def addAlpha(self, img):
+
+        b_chan, g_chan, r_chan = cv2.split(img)
+        alpha_chan = np.ones(b_chan.shape, dtype=b_chan.dtype) * 50
+        img = cv2.merge((b_chan, g_chan, r_chan, alpha_chan))
+
+        return img
+
+
+
+    def hasAlpha(self, img):
+
+        return img.shape[2] == 4
+
+
+   
+    def getRef(self, key):
+        """
+        Args:
+            A key that represents a single UV set in 'fDic' dictionary.
+
+        Returns:
+            A list of address for texture in the below order: 
+            [_co, _nohq, _as, _smdi, _ht, _spec, _gloss, _opgl] 
+              0     1     2     3      4    5       6      7
+        """
+
+        target = self.fDic.get(key)
+        temp = [None] * len(target)
+        abs_dir = self.dir
+
+        for i in target:
+
+            i = i.lower()
+            f = abs_dir + '/' + i
+
+            if self.getType(i) == 0:
+                temp[0] = f
+
+            elif self.getType(i) == 1:
+                temp[1] = f
+
+            elif self.getType(i) == 2:
+                temp[2] = f
+
+            elif self.getType(i) == 3:
+                temp[3] = f
+
+            elif self.getType(i) == 4:
+                temp[4] = f
+
+            elif self.getType(i) == 5:
+                temp[5] = f
+
+            elif self.getType(i) == 6:
+                temp[6] = f
+
+            elif self.getType(i) == 7:
+                temp[7] = f
+
+            else:
+                break
+        
+        return temp
+
+        
+    
+    def getType(self, fname):
+
+        ftype = fname[fname.rfind('_') : fname.rfind('.')]
+
+        if ftype == '_co':
+            return 0
+
+        elif ftype == '_nohq':
+            return 1
+
+        elif ftype == '_as':
+            return 2
+
+        elif ftype == '_smdi':
+            return 3
+
+        elif ftype == '_ht':
+            return 4
+
+        elif ftype == '_spec':
+            return 5
+
+        elif ftype == '_gloss':
+            return 6
+
+        elif ftype == '_opgl':
+            return 7
+
+        return None
+
+
+
+    def getKey(self, fname):
+
+        result = fname[fname.find('_') : fname.rfind('_')]
+
+        return result
+
+
+
+    def getFiles(self):
+
+        return self.fDic
+
+
+
+    def getSize(self):
+
+        return len(self.flist)

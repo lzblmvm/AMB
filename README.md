@@ -1,0 +1,1 @@
+# Texture merger for files exported from Substance Painter.
