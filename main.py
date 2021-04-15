@@ -15,10 +15,11 @@ def compute():
     inst1 = ambTEX(e_sourF.get(), e_outF.get(), e_suffix.get())
     temp = inst1.getFiles()
     populates(lb_fileList, temp, inst1.getSize())
+    inst1.convert2()
     
     try:
 
-        inst1.convert2()
+        
         lb_logList.insert(END, "Conversion complete!")
 
     except:

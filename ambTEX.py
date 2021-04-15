@@ -1,6 +1,6 @@
 from os import listdir, walk, chdir
 from blend_modes import addition, dodge, overlay
-from cv2 import imread, imwrite, merge, imshow, split, IMWRITE_JPEG_QUALITY, cv2
+from cv2 import imread, imwrite, merge, imshow, split, IMWRITE_JPEG_QUALITY, cv2, cvtColor, COLOR_RGB2BGR, COLOR_BGR2RGB
 import numpy as np
 
 
@@ -70,7 +70,7 @@ class ambTEX(object):
 
             for i in range(len(composifn)):
 
-                setA[i] = cv2.imread(composifn[i], -1).astype(float)
+                setA[i] = cv2.imread(composifn[i], -1).astype('float32')
 
             for j in range(len(setA)):
 
@@ -89,6 +89,14 @@ class ambTEX(object):
     def saveIMG(self, fname, img, dirO):
         
         chdir(dirO)
+
+        #img = img[:, :, [2, 1, 0]]
+
+        #img = img.astype('float32')
+        #img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+        img = self.rmAlpha(img)
+
         cv2.imwrite(dirO + fname, img, [cv2.IMWRITE_JPEG_QUALITY, 100])
 
 
@@ -98,6 +106,14 @@ class ambTEX(object):
         b_chan, g_chan, r_chan = cv2.split(img)
         alpha_chan = np.ones(b_chan.shape, dtype=b_chan.dtype) * 50
         img = cv2.merge((b_chan, g_chan, r_chan, alpha_chan))
+
+        return img
+
+
+
+    def rmAlpha(self, img):
+
+        img = img[:,:,:3]
 
         return img
 
