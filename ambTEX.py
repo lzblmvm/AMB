@@ -1,5 +1,5 @@
 from os import listdir, walk, chdir
-from blend_modes import soft_light, addition
+from blend_modes import addition, dodge, overlay
 from cv2 import imread, imwrite, merge, imshow, split, IMWRITE_JPEG_QUALITY, cv2
 import numpy as np
 
@@ -11,9 +11,10 @@ class ambTEX(object):
 
 
 
-    def __init__(self, dir, suffix):
+    def __init__(self, dir, dirO, suffix):
 
         self.dir = dir
+        self.dirO = dirO
         self.flist = []
         self.fDic = {}
         self.suff = suffix
@@ -48,21 +49,47 @@ class ambTEX(object):
         for j in range(len(setA)):
 
             if not self.hasAlpha(setA[j]):
-                
+                    
                 setA[j] = self.addAlpha(setA[j])
 
-
         img_out = addition(setA[0], setA[1], 1.0)
-        #cv2.imshow('window', img_out.astype(np.uint8))
+        self.saveIMG(self.getFileName(composifn), img_out, self.dirO)
+        #cv2.imshow('Output', img_out.astype(np.uint8))
 
         return img_out
 
 
 
-    def saveIMG(self, img, dir):
+    
+    def convert2(self):
 
-        chdir(dir)
-        cv2.imwrite(dir + '/GF.png', img, [cv2.IMWRITE_JPEG_QUALITY, 100])
+        for k in self.fDic.keys():
+            
+            composifn = self.getRef(k)
+            setA = [None] * 8
+
+            for i in range(len(composifn)):
+
+                setA[i] = cv2.imread(composifn[i], -1).astype(float)
+
+            for j in range(len(setA)):
+
+                if not self.hasAlpha(setA[j]):
+                    
+                    setA[j] = self.addAlpha(setA[j])
+
+            img_out = dodge(setA[5], setA[6], 1.0)
+            img_out = overlay(img_out, setA[0], 1.0)
+            self.saveIMG(self.getFileName(composifn), img_out, self.dirO)
+            #cv2.imshow('Output', img_out.astype(np.uint8))
+
+        return img_out
+
+    
+    def saveIMG(self, fname, img, dirO):
+        
+        chdir(dirO)
+        cv2.imwrite(dirO + fname, img, [cv2.IMWRITE_JPEG_QUALITY, 100])
 
 
 
@@ -176,6 +203,15 @@ class ambTEX(object):
     def getFiles(self):
 
         return self.fDic
+
+
+
+    def getFileName(self, composifn):
+
+        fname = composifn[0]
+        fname = fname[fname.rfind('/') : ]
+
+        return fname
 
 
 

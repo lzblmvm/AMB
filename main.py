@@ -12,14 +12,13 @@ window.resizable(False, False)
 #Listeners
 def compute():
 
-    inst1 = ambTEX(e_sourF.get(), e_suffix.get())
+    inst1 = ambTEX(e_sourF.get(), e_outF.get(), e_suffix.get())
     temp = inst1.getFiles()
     populates(lb_fileList, temp, inst1.getSize())
-
+    
     try:
 
-        Final_IMG = inst1.convert()
-        inst1.saveIMG(Final_IMG, e_outF.get())
+        inst1.convert2()
         lb_logList.insert(END, "Conversion complete!")
 
     except:
