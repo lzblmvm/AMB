@@ -13,4 +13,4 @@ Height:&nbsp; &nbsp; &nbsp; &nbsp;           _ht_0x\
 Glossiness:&nbsp; &nbsp; &nbsp; &nbsp;       _gloss_0x\
 
 # Example Run
-![](IMGs/Output.png)
+![](IMGs/Output.PNG)
