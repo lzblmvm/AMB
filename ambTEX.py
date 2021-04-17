@@ -1,7 +1,8 @@
 from os import listdir, walk, chdir
-from blend_modes import addition, dodge, overlay
+from blend_modes import darken_only, soft_light, dodge, overlay
 from cv2 import imread, imwrite, merge, imshow, split, IMWRITE_JPEG_QUALITY, cv2, cvtColor, COLOR_RGB2BGR, COLOR_BGR2RGB
 import numpy as np
+from tkinter import END
 
 
 class ambTEX(object):
@@ -11,7 +12,7 @@ class ambTEX(object):
 
 
 
-    def __init__(self, dir, dirO, suffix):
+    def __init__(self, dir, dirO, suffix, lb_logList):
 
         self.dir = dir
         self.dirO = dirO
@@ -19,6 +20,7 @@ class ambTEX(object):
         self.fDic = {}
         self.suff = suffix
         self.value = []
+        self.lb_logList = lb_logList
         
         _, _, self.flist = next(walk(dir))
 
@@ -39,28 +41,31 @@ class ambTEX(object):
 
     def convert(self):
 
-        composifn = self.getRef('_01')
-        setA = [None] * 2
+        for k in self.fDic.keys():
+            
+            composifn = self.getRef(k)
+            setA = [None] * 8
 
-        for i in range(2):
+            for i in range(len(composifn)):
 
-            setA[i] = cv2.imread(composifn[i], -1).astype(float)
+                setA[i] = cv2.imread(composifn[i], -1).astype('float32')
 
-        for j in range(len(setA)):
+            for j in range(len(setA)):
 
-            if not self.hasAlpha(setA[j]):
+                if not self.hasAlpha(setA[j]):
                     
-                setA[j] = self.addAlpha(setA[j])
+                    setA[j] = self.addAlpha(setA[j])
 
-        img_out = addition(setA[0], setA[1], 1.0)
-        self.saveIMG(self.getFileName(composifn), img_out, self.dirO)
-        #cv2.imshow('Output', img_out.astype(np.uint8))
+            img_out = darken_only(setA[5], setA[0], 1.0)
+            #img_out = overlay(img_out, setA[0], 1.0)
+            self.saveIMG(self.getFileName(composifn), img_out, self.dirO)
+            #cv2.imshow('Output', img_out.astype(np.uint8))
+            self.setLogs(k)
+            
+        return None
 
-        return img_out
 
 
-
-    
     def convert2(self):
 
         for k in self.fDic.keys():
@@ -82,8 +87,10 @@ class ambTEX(object):
             img_out = overlay(img_out, setA[0], 1.0)
             self.saveIMG(self.getFileName(composifn), img_out, self.dirO)
             #cv2.imshow('Output', img_out.astype(np.uint8))
+            self.setLogs(k)
+                   
+        return None
 
-        return img_out
 
     
     def saveIMG(self, fname, img, dirO):
@@ -228,6 +235,14 @@ class ambTEX(object):
         fname = fname[fname.rfind('/') : ]
 
         return fname
+
+
+    
+    def setLogs(self, gname):
+
+        logs = "Group: " + gname + " converted!"
+
+        self.lb_logList.insert(END, logs)
 
 
 
