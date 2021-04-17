@@ -11,3 +11,6 @@ Spec_Arma:&nbsp; &nbsp; &nbsp; &nbsp;        _smdi_0x\
 Specular:&nbsp; &nbsp; &nbsp; &nbsp;         _spec_0x\
 Height:&nbsp; &nbsp; &nbsp; &nbsp;           _ht_0x\
 Glossiness:&nbsp; &nbsp; &nbsp; &nbsp;       _gloss_0x\
+
+# Example Run
+![](IMGs/Output.PNG)
