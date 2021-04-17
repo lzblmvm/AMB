@@ -7,9 +7,8 @@ from tkinter import END
 
 class ambTEX(object):
     """
-        Load images from the given directory and redy them for processing.
+        Load images from the given directory and ready them for processing.
     """
-
 
 
     def __init__(self, dir, dirO, suffix, lb_logList):
